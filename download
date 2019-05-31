@@ -1,1 +1,5 @@
 #!/usr/bin/env bash
+./gdown.pl https://drive.google.com/file/d/1mXDCtfBg7LtmV__Qahek2qEP73ijfLK9/view?usp=sharing data.zip
+unzip data.zip -d data/
+rm gdown.20*
+rm data.zip
