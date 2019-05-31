@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+import os
+from os import path as osp
+import random
+from tqdm import tqdm
+from PIL import Image
+from constants import (
+    RAW_POS_DIR,
+    RAW_NEG_DIR,
+    TRAIN_DATA_DIR,
+    VAL_DATA_DIR,
+)
+
+
+VAL_RATIO = 0.1
+
+RAW_W = 640
+RAW_H = 480
+
+CROP_W_OFFSET = 196
+CROP_H_OFFSET = 52
+CROP_SIZE = 362
+RESIZE = 256
+
+
+# make dataset directory
+os.makedirs(TRAIN_DATA_DIR, exist_ok=True)
+os.makedirs(VAL_DATA_DIR, exist_ok=True)
+
+
+# ==========================================================
+# split images into train / validation for positive examples
+# ==========================================================
+
+train_set_count = 0
+val_set_count = 0
+
+images = [
+    osp.join(RAW_POS_DIR, fn) for fn in
+    os.listdir(RAW_POS_DIR)
+]
+v = int(len(images) * VAL_RATIO)
+random.shuffle(images)
+train_images = images[v:]
+val_images = images[:v]
+
+# copy train images to the train dir
+for path in tqdm(train_images, desc='processing pos/train'):
+    ext = osp.splitext(path)[1]
+    dst = osp.join(TRAIN_DATA_DIR, 'pos-{}{}'.format(train_set_count, ext))
+    img = Image.open(path)
+    img = img.crop((
+        CROP_W_OFFSET, CROP_H_OFFSET,
+        CROP_W_OFFSET + CROP_SIZE,
+        CROP_H_OFFSET + CROP_SIZE
+    ))
+    img = img.resize((RESIZE, RESIZE), Image.BILINEAR)
+    img.save(dst)
+    train_set_count += 1
+
+# copy validation images to the validation dir
+for path in tqdm(val_images, desc='processing pos/val'):
+    ext = osp.splitext(path)[1]
+    dst = osp.join(VAL_DATA_DIR, 'pos-{}{}'.format(val_set_count, ext))
+    img = Image.open(path)
+    img = img.crop((
+        CROP_W_OFFSET, CROP_H_OFFSET,
+        CROP_W_OFFSET + CROP_SIZE,
+        CROP_H_OFFSET + CROP_SIZE
+    ))
+    img = img.resize((RESIZE, RESIZE), Image.BILINEAR)
+    img.save(dst)
+    val_set_count += 1
+
+# ==========================================================
+# split images into train / validation for negative examples
+# ==========================================================
+
+train_set_count = 0
+val_set_count = 0
+
+images = [
+    osp.join(RAW_NEG_DIR, fn) for fn in
+    os.listdir(RAW_NEG_DIR)
+]
+v = int(len(images) * VAL_RATIO)
+random.shuffle(images)
+train_images = images[v:]
+val_images = images[:v]
+
+# copy train images to the train dir
+for path in tqdm(train_images, desc='processing neg/train'):
+    ext = osp.splitext(path)[1]
+    dst = osp.join(TRAIN_DATA_DIR, 'neg-{}{}'.format(train_set_count, ext))
+    img = Image.open(path)
+    img = img.crop((
+        CROP_W_OFFSET, CROP_H_OFFSET,
+        CROP_W_OFFSET + CROP_SIZE,
+        CROP_H_OFFSET + CROP_SIZE
+    ))
+    img = img.resize((RESIZE, RESIZE), Image.BILINEAR)
+    img.save(dst)
+    train_set_count += 1
+
+# copy validation images to the validation dir
+for path in tqdm(val_images, desc='processing neg/val'):
+    ext = osp.splitext(path)[1]
+    dst = osp.join(VAL_DATA_DIR, 'neg-{}{}'.format(val_set_count, ext))
+    img = Image.open(path)
+    img = img.crop((
+        CROP_W_OFFSET, CROP_H_OFFSET,
+        CROP_W_OFFSET + CROP_SIZE,
+        CROP_H_OFFSET + CROP_SIZE
+    ))
+    img = img.resize((RESIZE, RESIZE), Image.BILINEAR)
+    img.save(dst)
+    val_set_count += 1
